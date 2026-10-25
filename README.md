@@ -115,10 +115,3 @@ The backend will run at http://127.0.0.1:8000/
 
 Open `frontend/index.html` in your browser, or serve the `frontend` folder with a simple server such as the VS Code Live Server extension.
 
-## Git Workflow
-
-- Work only on your own branch (`your-name-budgetbuddy`), never directly on `main`.
-- Commit regularly with meaningful messages.
-- Push with `git push` after the first `git push -u origin your-name-budgetbuddy`.
-- Never commit `.env`, `venv`, `node_modules`, passwords, API keys or tokens.
-
