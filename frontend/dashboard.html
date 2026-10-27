@@ -3,18 +3,129 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BudgetBuddy - Dashboard</title>
+  <title>Overview | BudgetBuddy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232d5bff'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23f2b138'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="dashboard">
-  <div class="card">
-    <h1>Dashboard</h1>
-    <p class="sub" id="welcome">Loading...</p>
-    <p>Email: <span id="email"></span></p>
-    <p>Role: <span id="role"></span></p>
-    <p>Monthly income: <span id="income"></span></p>
-    <button onclick="logout()">Log Out</button>
+<body>
+  <div class="app">
+
+    <aside class="sidebar">
+      <a class="brand" href="dashboard.html" aria-label="BudgetBuddy overview">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#2d5bff"/><circle cx="16" cy="16" r="7" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2.5" fill="#f2b138"/></svg>
+        BudgetBuddy
+      </a>
+
+      <nav class="nav" aria-label="Main">
+        <a href="dashboard.html" aria-current="page">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+          Overview
+        </a>
+        <a aria-disabled="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/></svg>
+          Expenses <span class="tag">Soon</span>
+        </a>
+        <a aria-disabled="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          Income <span class="tag">Soon</span>
+        </a>
+        <a aria-disabled="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9V3z"/></svg>
+          Budgets <span class="tag">Soon</span>
+        </a>
+        <a aria-disabled="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+          Goals <span class="tag">Soon</span>
+        </a>
+        <a aria-disabled="true" tabindex="-1">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+          Reports <span class="tag">Soon</span>
+        </a>
+      </nav>
+
+      <div class="side-user">
+        <div class="avatar" id="avatar" aria-hidden="true">?</div>
+        <div class="who">
+          <div class="name" id="sideName">Loading</div>
+          <div class="role" id="sideRole">&nbsp;</div>
+        </div>
+        <button type="button" class="logout" id="logoutBtn">Log out</button>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <header class="page-head">
+        <h1 id="greeting">Welcome</h1>
+        <p>Here is your account at a glance.</p>
+      </header>
+
+      <div class="alert banner" id="banner" role="alert" hidden></div>
+
+      <section class="overview" aria-label="Account summary">
+        <div class="income">
+          <div>
+            <div class="label">Monthly income</div>
+            <div class="amount is-loading-block" id="incomeValue">0.00 USD</div>
+          </div>
+          <p class="note" id="incomeNote">&nbsp;</p>
+        </div>
+
+        <div class="account">
+          <h2>Your account</h2>
+          <dl>
+            <div class="row"><dt>Username</dt><dd id="accUsername">--</dd></div>
+            <div class="row"><dt>Email</dt><dd id="accEmail">--</dd></div>
+            <div class="row"><dt>Full name</dt><dd id="accName">--</dd></div>
+            <div class="row"><dt>Role</dt><dd><span class="badge" id="accRole">--</span></dd></div>
+            <div class="row"><dt>Currency</dt><dd id="accCurrency">--</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="modules" aria-labelledby="modulesTitle">
+        <h2 id="modulesTitle">What you will manage here</h2>
+        <p class="intro">These tools are planned for the next milestones.</p>
+
+        <ul class="ledger">
+          <li class="module">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><path d="M9 8h6M9 12h6"/></svg>
+            <span class="title">Expenses</span>
+            <span class="desc">Log daily spending and sort it into categories like Food and Travel.</span>
+            <span class="when">Milestone 2</span>
+          </li>
+          <li class="module">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            <span class="title">Income</span>
+            <span class="desc">Record pocket money, scholarships and freelance earnings.</span>
+            <span class="when">Milestone 2</span>
+          </li>
+          <li class="module">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9V3z"/></svg>
+            <span class="title">Budgets</span>
+            <span class="desc">Set a monthly limit overall or for each category and watch it fill up.</span>
+            <span class="when">Milestone 2</span>
+          </li>
+          <li class="module">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>
+            <span class="title">Savings goals</span>
+            <span class="desc">Save towards a new laptop, a trip or an emergency fund.</span>
+            <span class="when">Milestone 3</span>
+          </li>
+          <li class="module">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+            <span class="title">Reports and charts</span>
+            <span class="desc">See monthly trends and export your history as PDF or Excel.</span>
+            <span class="when">Milestone 4</span>
+          </li>
+        </ul>
+      </section>
+    </main>
+
   </div>
+
   <script src="js/api.js"></script>
   <script src="js/dashboard.js"></script>
 </body>
