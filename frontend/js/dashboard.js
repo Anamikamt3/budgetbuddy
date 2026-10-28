@@ -1,8 +1,9 @@
-const ROLE_NAMES = { student: 'Student', premium: 'Premium user', admin: 'Admin' };
-
 const $ = (id) => document.getElementById(id);
+const monthInput = $('month');
+const COLORS = ['#2d5bff', '#f2b138', '#16866a', '#e5566d', '#8b6cf0', '#5b6578'];
 
-$('logoutBtn').addEventListener('click', logout);
+const ICON_UP = '<svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const ICON_DOWN = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg>';
 
 function greetingFor(name) {
   const hour = new Date().getHours();
@@ -10,80 +11,82 @@ function greetingFor(name) {
   return `${part}, ${name}`;
 }
 
-function initialsFor(profileName, username) {
-  const source = (profileName || '').trim();
-  if (source) {
-    const parts = source.split(/\s+/);
-    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+function renderStats(data) {
+  $('statIncome').textContent = formatMoney(data.income_total);
+  $('statExpenses').textContent = formatMoney(data.expense_total);
+
+  const balance = $('statBalance');
+  balance.textContent = formatMoney(data.balance);
+  balance.className = 'value ' + (data.balance < 0 ? 'neg' : data.balance > 0 ? 'pos' : '');
+
+  const budget = data.budget;
+  if (budget) {
+    const barClass = budget.percent >= 100 ? 'over' : budget.percent >= 80 ? 'warn' : '';
+    $('statBudget').textContent = `${Math.round(budget.percent)}%`;
+    $('statBudgetExtra').innerHTML = `
+      <div class="bar ${barClass}"><i style="width:${Math.min(budget.percent, 100)}%"></i></div>
+      <div class="sub">${formatMoney(budget.spent)} of ${formatMoney(budget.amount)}</div>`;
+  } else {
+    $('statBudget').textContent = 'Not set';
+    $('statBudgetExtra').innerHTML = '<div class="sub"><a href="budgets.html">Set a monthly budget</a></div>';
   }
-  return username.slice(0, 2).toUpperCase();
 }
 
-function formatMoney(amount, currency) {
-  const number = Number(amount) || 0;
+function renderCategories(data) {
+  const box = $('categories');
+  if (data.by_category.length === 0) {
+    box.innerHTML = `<div class="empty"><strong>No expenses this month</strong>
+      Add your first expense to see where your money goes.
+      <br><a class="button" href="expenses.html?new=1">+ Add expense</a></div>`;
+    return;
+  }
+  const top = data.by_category[0].total;
+  box.innerHTML = data.by_category.map((row, index) => `
+    <div class="cat-row">
+      <div class="top"><span>${escapeHtml(row.category)}</span><span>${formatMoney(row.total)}</span></div>
+      <div class="bar"><i style="width:${(row.total / top) * 100}%; --c:${COLORS[index % COLORS.length]}"></i></div>
+    </div>`).join('');
+}
+
+function renderRecent(data) {
+  const box = $('recent');
+  if (data.recent.length === 0) {
+    box.innerHTML = `<div class="empty"><strong>No transactions yet</strong>
+      Your latest income and expenses will appear here.</div>`;
+    return;
+  }
+  box.innerHTML = data.recent.map((item) => {
+    const isIncome = item.type === 'income';
+    const kind = isIncome ? 'in' : 'out';
+    return `
+      <div class="tx">
+        <div class="tx-icon ${kind}">${isIncome ? ICON_UP : ICON_DOWN}</div>
+        <div class="tx-main">
+          <div class="tx-title">${escapeHtml(item.title)}</div>
+          <div class="tx-sub">${formatDate(item.date)}${item.description ? ' · ' + escapeHtml(item.description) : ''}</div>
+        </div>
+        <div class="tx-amount ${kind}">${isIncome ? '+' : '-'}${formatMoney(item.amount)}</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadSummary() {
   try {
-    return new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(number);
+    const data = await apiFetch(`/finance/summary/?month=${monthInput.value}`);
+    renderStats(data);
+    renderCategories(data);
+    renderRecent(data);
   } catch (err) {
-    return `${currency} ${number.toFixed(2)}`;
+    toast(err.message, 'error');
   }
 }
 
-function showBanner(message) {
-  const banner = $('banner');
-  banner.textContent = message;
-  banner.hidden = false;
-}
+monthInput.value = currentMonth();
+monthInput.addEventListener('change', () => {
+  if (monthInput.value) loadSummary();
+});
 
-async function loadUser() {
-  const token = getAccessToken();
-  if (!token) {
-    window.location.replace('index.html');
-    return;
-  }
-
-  let response;
-  try {
-    response = await fetch(`${API_URL}/auth/me/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-  } catch (err) {
-    $('incomeValue').classList.remove('is-loading-block');
-    showBanner(NETWORK_MESSAGE);
-    return;
-  }
-
-  // Missing, expired or invalid token: back to the login page.
-  if (!response.ok) {
-    logout();
-    return;
-  }
-
-  const user = await response.json();
-  const profile = user.profile || {};
-  const displayName = (profile.full_name || '').trim() || user.username;
-  const roleName = ROLE_NAMES[user.role] || user.role;
-  const income = Number(profile.monthly_income) || 0;
-
-  document.title = `Overview | BudgetBuddy`;
-  $('greeting').textContent = greetingFor(displayName);
-
-  $('avatar').textContent = initialsFor(profile.full_name, user.username);
-  $('sideName').textContent = displayName;
-  $('sideRole').textContent = roleName;
-
-  $('accUsername').textContent = user.username;
-  $('accEmail').textContent = user.email;
-  $('accName').textContent = profile.full_name || 'Not set';
-  $('accRole').textContent = roleName;
-  $('accCurrency').textContent = profile.currency || 'Not set';
-
-  $('incomeValue').classList.remove('is-loading-block');
-  $('incomeValue').textContent = formatMoney(income, profile.currency || 'USD');
-
-  $('incomeNote').innerHTML =
-    income > 0
-      ? 'This is the monthly income saved on your profile.'
-      : 'You have not set your monthly income yet. <strong>Profile editing</strong> arrives in the next update.';
-}
-
-loadUser();
+appReady.then(() => {
+  $('greeting').textContent = greetingFor(BB.displayName);
+  loadSummary();
+}).catch(() => {});
