@@ -1,117 +1,155 @@
-# BudgetBuddy – Personal Budget Planning and Expense Management Platform
+# 💰 BudgetBuddy – AI-Powered Budget Management Tool
 
-BudgetBuddy is a web application that helps students plan their budgets and track their daily expenses in one place. It is being built step by step as part of the Infosys Internship Program.
+BudgetBuddy is a web-based budget management application designed to help users manage their personal finances efficiently. It provides features for tracking income and expenses, managing budgets, and monitoring financial activities through an intuitive interface.
 
-## Tech Stack
+## 🚀 Project Progress
 
-| Layer           | Technology            |
-|-----------------|-----------------------|
-| Frontend        | HTML, CSS, JavaScript |
-| Backend         | Python, Django        |
-| Database        | PostgreSQL            |
-| Authentication  | JWT (JSON Web Tokens) |
-| Version Control | Git and GitHub        |
+<badge color="success">Milestone 1 Completed</badge> <badge color="success">Milestone 2 Completed</badge>
 
-## Features
+Milestones 1 and 2 have been successfully completed. Development is progressing towards the upcoming milestones.
 
-Completed so far:
+## ✨ Features
 
-- Django and PostgreSQL project setup
-- Database schema design
-- JWT-based user authentication (register and login)
-- Frontend pages: login, register and dashboard
+- **User Authentication** – User registration and login.
+- **Dashboard** – Overview of financial activities.
+- **Budget Management** – Create and manage budgets.
+- **Transaction Management** – Track income and expenses.
+- **Transaction History** – View previous financial transactions.
+- **Responsive UI** – Clean and user-friendly interface.
 
-Planned (following the 8-week project plan):
+## 🛠️ Technologies Used
 
-- Expense tracking
-- Budget planning
-- Reports and summaries
+### Frontend
+- React.js
+- JavaScript
+- HTML5
+- CSS3
+- Vite
 
-## Project Structure
+### Backend
+- Python Django
+- Django REST Framework 
 
-```
+### Tools
+- Git and GitHub
+- VS Code
+- npm
+
+## 📂 Project Structure
+
+```text
 BudgetBuddy-AI-Tool/
-├── README.md
-├── .gitignore
+│
 ├── backend/
+│   ├── accounts/
+│   ├── config/
+│   ├── finance/
 │   ├── manage.py
 │   ├── requirements.txt
-│   ├── .env                 # local only, never committed
-│   ├── venv/                # virtual environment, never committed
-│   ├── config/              # Django project settings and main URLs
-│   ├── accounts/            # user registration, login and JWT authentication
-│   └── finance/             # budget and expense features
-└── frontend/
-    ├── index.html           # login page
-    ├── register.html        # registration page
-    ├── dashboard.html       # user dashboard
-    ├── css/
-    │   └── style.css
-    └── js/
-        ├── api.js           # shared API request helpers
-        ├── login.js
-        ├── register.js
-        └── dashboard.js
+│   └── .env
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── pages/
+│   │   ├── styles/
+│   │   ├── App.jsx
+│   │   ├── api.js
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
+│
+├── .gitignore
+└── README.md
 ```
 
-## Getting Started
+## ⚙️ Installation and Setup
 
-### Prerequisites
-
-- Python 3.10 or newer
-- PostgreSQL (with pgAdmin, optional)
-- Git
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/springboardmentor184-png/BudgetBuddy-AI-Tool.git
+git clone <your-repository-url>
 cd BudgetBuddy-AI-Tool
-git checkout your-name-budgetbuddy
 ```
 
-### 2. Set up the backend
+### 2. Backend Setup (Django)
 
 ```bash
 cd backend
+```
+
+Create a virtual environment:
+
+```bash
 python -m venv venv
+```
 
-# Windows
+Activate it on Windows:
+
+```bash
 venv\Scripts\activate
-# Mac / Linux
-source venv/bin/activate
+```
 
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
 ```
 
-### 3. Create the database
-
-Create a PostgreSQL database (for example `budget_buddy`) using pgAdmin or `psql`.
-
-### 4. Configure environment variables
-
-Create a `.env` file inside `backend/` (this file is never committed):
-
-```
-SECRET_KEY=your-django-secret-key
-DEBUG=True
-DB_NAME=budget_buddy
-DB_USER=your-postgres-user
-DB_PASSWORD=your-postgres-password
-DB_HOST=localhost
-DB_PORT=5432
-```
-
-### 5. Run migrations and start the server
+Apply database migrations:
 
 ```bash
 python manage.py migrate
+```
+
+Start the Django development server:
+
+```bash
 python manage.py runserver
 ```
 
-The backend will run at http://127.0.0.1:8000/
+### 3. Frontend Setup (React + Vite)
 
-### 6. Run the frontend
+Open another terminal:
 
-Open `frontend/index.html` in your browser, or serve the `frontend` folder with a simple server such as the VS Code Live Server extension.
+```bash
+cd frontend
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open the local URL displayed in the terminal to access the application.
+
+## 📌 Development Milestones
+
+| Milestone | Status |
+|---|---|
+| Milestone 1 | ✅ Completed |
+| Milestone 2 | ✅ Completed |
+| Milestone 3 | 🔄 Upcoming |
+
+## 🎯 Project Objective
+
+To develop an intelligent and user-friendly budget management platform that simplifies personal financial tracking and helps users make better financial decisions.
+
+## 👩‍💻 Developer
+
+**Anamika M T**
+
+GitHub: [Anamikamt3](https://github.com/Anamikamt3)
+
+---
 
