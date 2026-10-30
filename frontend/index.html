@@ -1,93 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Log in | BudgetBuddy</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232d5bff'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23f2b138'/%3E%3C/svg%3E">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BudgetBuddy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%232d5bff'/%3E%3Ccircle cx='16' cy='16' r='7' fill='none' stroke='white' stroke-width='3'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23f2b138'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <main class="auth">
-
-    <aside class="auth-art" aria-label="About BudgetBuddy">
-      <a class="brand" href="index.html" aria-label="BudgetBuddy home">
-        <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#2d5bff"/><circle cx="16" cy="16" r="7" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2.5" fill="#f2b138"/></svg>
-        BudgetBuddy
-      </a>
-
-      <div>
-        <h2>Know where your money goes.</h2>
-        <p class="lede">Track spending, plan a monthly budget and save for the things you want.</p>
-      </div>
-
-      <figure class="sample">
-        <svg class="ring" viewBox="0 0 200 200" role="img" aria-label="A sample month of spending split across six categories">
-          <g transform="rotate(-90 100 100)" fill="none" stroke-width="22">
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#6c8bff" stroke-dasharray="31 69" stroke-dashoffset="0"   style="--d:0ms"/>
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#f2b138" stroke-dasharray="13 87" stroke-dashoffset="-32"  style="--d:140ms"/>
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#3dd6a5" stroke-dasharray="17 83" stroke-dashoffset="-46"  style="--d:280ms"/>
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#ff8fa3" stroke-dasharray="19 81" stroke-dashoffset="-64"  style="--d:420ms"/>
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#a78bfa" stroke-dasharray="9 91"  stroke-dashoffset="-84"  style="--d:560ms"/>
-            <circle class="seg" cx="100" cy="100" r="80" pathLength="100" stroke="#8fa3c0" stroke-dasharray="5 95"  stroke-dashoffset="-94"  style="--d:700ms"/>
-          </g>
-          <text class="ring-label" x="100" y="97" text-anchor="middle">A sample</text>
-          <text class="ring-label" x="100" y="116" text-anchor="middle">month</text>
-        </svg>
-        <ul class="legend">
-          <li style="--c:#6c8bff">Food <span>32%</span></li>
-          <li style="--c:#f2b138">Travel <span>14%</span></li>
-          <li style="--c:#3dd6a5">Shopping <span>18%</span></li>
-          <li style="--c:#ff8fa3">Education <span>20%</span></li>
-          <li style="--c:#a78bfa">Entertainment <span>10%</span></li>
-          <li style="--c:#8fa3c0">Miscellaneous <span>6%</span></li>
-        </ul>
-        <!-- <figcaption class="sample-note">Sample figures for illustration.</figcaption> -->
-      </figure>
-    </aside>
-
-    <section class="auth-panel">
-      <div class="auth-box">
-        <a class="brand mobile-brand" href="index.html">
-          <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#2d5bff"/><circle cx="16" cy="16" r="7" fill="none" stroke="#fff" stroke-width="3"/><circle cx="16" cy="16" r="2.5" fill="#f2b138"/></svg>
-          BudgetBuddy
-        </a>
-
-        <h1>Welcome back</h1>
-        <p class="sub">Log in to see where your pocket money went.</p>
-
-        <form id="loginForm" novalidate>
-          <div class="notice" id="notice" role="status" hidden></div>
-          <div class="alert" id="formAlert" role="alert" hidden></div>
-
-          <div class="field">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" autocomplete="username" autofocus>
-            <p class="field-error" id="username-error"></p>
-          </div>
-
-          <div class="field">
-            <label for="password">Password</label>
-            <div class="input-wrap">
-              <input type="password" id="password" name="password" autocomplete="current-password">
-              <button type="button" class="toggle-pw" data-toggle-password aria-controls="password" aria-pressed="false">Show</button>
-            </div>
-            <p class="field-error" id="password-error"></p>
-          </div>
-
-          <button type="submit" class="btn"><span class="btn-label">Log in</span></button>
-        </form>
-
-        <p class="auth-switch">New to BudgetBuddy? <a href="register.html">Create an account</a></p>
-      </div>
-    </section>
-
-  </main>
-
-  <script src="js/api.js"></script>
-  <script src="js/login.js"></script>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
