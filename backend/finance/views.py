@@ -152,3 +152,46 @@ class SummaryView(APIView):
             'budget': budget,
             'recent': [item[2] for item in items[:8]],
         })
+
+class TransactionListView(APIView):
+    def get(self, request):
+        user = request.user
+        kind = request.query_params.get('type', 'all')
+        month = request.query_params.get('month')
+
+        incomes = Income.objects.filter(user=user)
+        expenses = Expense.objects.filter(user=user).select_related('category')
+        if month:
+            start, end = month_bounds(month)
+            incomes = incomes.filter(date__gte=start, date__lt=end)
+            expenses = expenses.filter(date__gte=start, date__lt=end)
+
+        # Totals always cover the whole month, whatever "type" is chosen
+        income_total = float(incomes.aggregate(t=Sum('amount'))['t'] or 0)
+        expense_total = float(expenses.aggregate(t=Sum('amount'))['t'] or 0)
+
+        items = []
+        if kind in ('all', 'expense'):
+            for e in expenses:
+                items.append((e.date, e.created_at, {
+                    'type': 'expense', 'id': e.id,
+                    'title': e.category.name if e.category else 'Expense',
+                    'description': e.description, 'amount': float(e.amount),
+                    'date': e.date.isoformat(),
+                }))
+        if kind in ('all', 'income'):
+            for i in incomes:
+                items.append((i.date, i.created_at, {
+                    'type': 'income', 'id': i.id,
+                    'title': i.get_source_display(),
+                    'description': i.description, 'amount': float(i.amount),
+                    'date': i.date.isoformat(),
+                }))
+        items.sort(key=lambda item: (item[0], item[1]), reverse=True)
+
+        return Response({
+            'count': len(items),
+            'income_total': income_total,
+            'expense_total': expense_total,
+            'results': [item[2] for item in items[:500]],    # safety limit
+        })
