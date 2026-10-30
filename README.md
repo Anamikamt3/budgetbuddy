@@ -4,8 +4,6 @@ BudgetBuddy is a web-based budget management application designed to help users 
 
 ## 🚀 Project Progress
 
-<badge color="success">Milestone 1 Completed</badge> <badge color="success">Milestone 2 Completed</badge>
-
 Milestones 1 and 2 have been successfully completed. Development is progressing towards the upcoming milestones.
 
 ## ✨ Features
