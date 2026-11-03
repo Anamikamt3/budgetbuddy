@@ -2,10 +2,6 @@
 
 BudgetBuddy is a web-based budget management application designed to help users manage their personal finances efficiently. It provides features for tracking income and expenses, managing budgets, and monitoring financial activities through an intuitive interface.
 
-## 🚀 Project Progress
-
-Milestones 1 and 2 have been successfully completed. Development is progressing towards the upcoming milestones.
-
 ## ✨ Features
 
 - **User Authentication** – User registration and login.
@@ -137,7 +133,7 @@ Open the local URL displayed in the terminal to access the application.
 |---|---|
 | Milestone 1 | ✅ Completed |
 | Milestone 2 | ✅ Completed |
-| Milestone 3 | 🔄 Upcoming |
+| Milestone 3 | 🔄 On working |
 
 ## 🎯 Project Objective
 
