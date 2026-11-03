@@ -161,3 +161,8 @@ CORS_ALLOWED_ORIGINS = [
     'http://127.0.0.1:5500',
     'http://localhost:5500',
 ]
+
+
+# Where generated report files are kept
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

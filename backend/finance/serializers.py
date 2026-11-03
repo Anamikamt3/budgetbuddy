@@ -1,7 +1,9 @@
+from datetime import date
+
 from django.db.models import Q
 from rest_framework import serializers
 
-from .models import Category, Income, Expense, Budget
+from .models import Budget, Category, Expense, Income, Notification, SavingsGoal
 from .utils import month_bounds, total_spent
 
 
@@ -85,3 +87,55 @@ class BudgetSerializer(OwnCategoryMixin, serializers.ModelSerializer):
         if value <= 0:
             raise serializers.ValidationError('Amount must be greater than 0.')
         return value
+
+
+class SavingsGoalSerializer(serializers.ModelSerializer):
+    progress = serializers.SerializerMethodField()
+    remaining = serializers.SerializerMethodField()
+    days_left = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SavingsGoal
+        fields = ['id', 'name', 'target_amount', 'saved_amount', 'deadline',
+                  'is_completed', 'progress', 'remaining', 'days_left', 'created_at']
+        read_only_fields = ['is_completed', 'created_at']
+
+    def get_progress(self, obj):
+        target = float(obj.target_amount)
+        return min(round(float(obj.saved_amount) / target * 100, 1), 100) if target else 0
+
+    def get_remaining(self, obj):
+        return max(float(obj.target_amount) - float(obj.saved_amount), 0)
+
+    def get_days_left(self, obj):
+        return (obj.deadline - date.today()).days if obj.deadline else None
+
+    def validate_name(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError('Give your goal a name.')
+        return value
+
+    def validate_target_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError('Target must be greater than 0.')
+        return value
+
+    def validate_saved_amount(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Saved amount cannot be negative.')
+        return value
+
+    def validate_deadline(self, value):
+        # only check new goals, so old goals can still be edited after their date
+        if value and self.instance is None and value < date.today():
+            raise serializers.ValidationError('The deadline cannot be in the past.')
+        return value
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    type_label = serializers.CharField(source='get_type_display', read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = ['id', 'type', 'type_label', 'message', 'is_read', 'created_at']

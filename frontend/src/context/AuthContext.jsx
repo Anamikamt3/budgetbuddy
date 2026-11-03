@@ -59,6 +59,7 @@ export function AuthProvider({ children }) {
       login,
       logout,
       reload: loadUser,
+      setUser,
       currency: profile.currency || 'INR',
       displayName: (profile.full_name || '').trim() || user?.username || '',
     };

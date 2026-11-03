@@ -1,11 +1,16 @@
+from decimal import Decimal, InvalidOperation
+
 from django.db.models import Q, Sum
-from rest_framework import generics, status, viewsets
+from rest_framework import generics, mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import Category, Income, Expense, Budget
+from .models import Budget, Category, Expense, Income, Notification, SavingsGoal
+from .notifications import check_budget_alerts, run_reminders, sync_goal
 from .serializers import (
-    CategorySerializer, IncomeSerializer, ExpenseSerializer, BudgetSerializer,
+    BudgetSerializer, CategorySerializer, ExpenseSerializer, IncomeSerializer,
+    NotificationSerializer, SavingsGoalSerializer,
 )
 from .utils import month_bounds
 
@@ -54,6 +59,14 @@ class ExpenseViewSet(OwnedViewSet):
             queryset = queryset.filter(category_id=category)
         return queryset
 
+    def perform_create(self, serializer):
+        expense = serializer.save(user=self.request.user)
+        check_budget_alerts(self.request.user, expense.date)      # budget alerts
+
+    def perform_update(self, serializer):
+        expense = serializer.save()
+        check_budget_alerts(self.request.user, expense.date)
+
 
 class IncomeViewSet(OwnedViewSet):
     queryset = Income.objects.order_by('-date', '-id')
@@ -85,11 +98,72 @@ class BudgetViewSet(OwnedViewSet):
             month=data['month'],
             defaults={'amount': data['amount']},
         )
+        check_budget_alerts(request.user, budget.month)           # budget alerts
         output = self.get_serializer(budget)
         return Response(
             output.data,
             status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
         )
+
+
+class SavingsGoalViewSet(OwnedViewSet):
+    queryset = SavingsGoal.objects.order_by('is_completed', 'deadline', '-id')
+    serializer_class = SavingsGoalSerializer
+
+    def perform_create(self, serializer):
+        goal = serializer.save(user=self.request.user)
+        sync_goal(goal)
+
+    def perform_update(self, serializer):
+        goal = serializer.save()
+        sync_goal(goal)
+
+    @action(detail=True, methods=['post'])
+    def contribute(self, request, pk=None):
+        """Add money to a goal (positive amount) or take money out (negative)."""
+        goal = self.get_object()
+        try:
+            amount = Decimal(str(request.data.get('amount')))
+        except InvalidOperation:
+            amount = None
+        if amount is None or not amount.is_finite() or amount == 0:
+            return Response({'amount': ['Enter an amount other than 0.']},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        new_total = goal.saved_amount + amount
+        if new_total < 0:
+            return Response({'amount': ['You cannot take out more than you have saved.']},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        goal.saved_amount = new_total
+        goal.save(update_fields=['saved_amount'])
+        sync_goal(goal)
+        return Response(self.get_serializer(goal).data)
+
+
+class NotificationViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin,
+                          viewsets.GenericViewSet):
+    serializer_class = NotificationSerializer
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at', '-id')
+
+    def list(self, request, *args, **kwargs):
+        run_reminders(request.user)          # create any reminders that are due today
+        serializer = self.get_serializer(self.get_queryset()[:50], many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='read')
+    def mark_read(self, request, pk=None):
+        notification = self.get_object()
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+        return Response(self.get_serializer(notification).data)
+
+    @action(detail=False, methods=['post'], url_path='read-all')
+    def mark_all_read(self, request):
+        updated = self.get_queryset().filter(is_read=False).update(is_read=True)
+        return Response({'updated': updated})
 
 
 class SummaryView(APIView):
@@ -153,7 +227,11 @@ class SummaryView(APIView):
             'recent': [item[2] for item in items[:8]],
         })
 
+
 class TransactionListView(APIView):
+    """Income and expenses mixed into ONE list, newest first.
+    Options:  ?month=2026-10   ?type=all | expense | income"""
+
     def get(self, request):
         user = request.user
         kind = request.query_params.get('type', 'all')
