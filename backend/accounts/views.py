@@ -39,7 +39,7 @@ class ProfileView(APIView):
         if 'email' in data:
             user.email = data['email']
             user.save(update_fields=['email'])
-        for field in ('full_name', 'monthly_income', 'currency'):
+        for field in ('full_name', 'monthly_income', 'currency' , 'email_notifications'):
             if field in data:
                 setattr(profile, field, data[field])
         profile.save()

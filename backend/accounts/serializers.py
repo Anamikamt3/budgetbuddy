@@ -17,7 +17,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
-        fields = ['full_name', 'monthly_income', 'currency']
+        fields = ['full_name', 'monthly_income', 'currency' , 'email_notifications']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,6 +38,7 @@ class ProfileUpdateSerializer(serializers.Serializer):
     currency = serializers.RegexField(
         r'^[A-Za-z]{3}$', required=False,
         error_messages={'invalid': 'Use a 3-letter currency code such as INR or USD.'})
+    email_notifications = serializers.BooleanField(required=False)
 
     def validate_email(self, value):
         user = self.context['request'].user

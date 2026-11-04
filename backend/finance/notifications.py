@@ -3,6 +3,7 @@ from datetime import date
 from .analytics import add_months
 from .models import Budget, Expense, Income, Notification, SavingsGoal
 from .utils import month_bounds, total_spent
+from .emails import send_notification_email
 
 MILESTONES = (25, 50, 75, 100)     # goal progress that triggers a message
 REMINDER_DAYS = (3, 7, 14)         # "due within N days" reminders
@@ -13,7 +14,9 @@ def create_once(user, kind, message):
     This stops the same alert from appearing again and again."""
     if Notification.objects.filter(user=user, type=kind, message=message).exists():
         return None
-    return Notification.objects.create(user=user, type=kind, message=message)
+    notification = Notification.objects.create(user=user, type=kind, message=message)
+    send_notification_email(notification)       # also email the user
+    return notification
 
 
 def check_budget_alerts(user, any_date):

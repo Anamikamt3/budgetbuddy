@@ -1,5 +1,5 @@
 from decimal import Decimal, InvalidOperation
-
+from .emails import send_test_email
 from django.db.models import Q, Sum
 from rest_framework import generics, mixins, status, viewsets
 from rest_framework.decorators import action
@@ -164,6 +164,19 @@ class NotificationViewSet(mixins.ListModelMixin, mixins.DestroyModelMixin,
     def mark_all_read(self, request):
         updated = self.get_queryset().filter(is_read=False).update(is_read=True)
         return Response({'updated': updated})
+
+    @action(detail=False, methods=['post'], url_path='test-email')
+    def test_email(self, request):
+        """Sends a test email to the logged-in user (used by the Profile page)."""
+        if not request.user.email:
+            return Response({'detail': 'Add an email address to your profile first.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        try:
+            send_test_email(request.user)
+        except Exception as error:
+            return Response({'detail': f'The email could not be sent: {error}'},
+                            status=status.HTTP_502_BAD_GATEWAY)
+        return Response({'detail': f'A test email was sent to {request.user.email}.'})
 
 
 class SummaryView(APIView):

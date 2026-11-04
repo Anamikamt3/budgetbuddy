@@ -134,11 +134,11 @@ STATIC_URL = 'static/'
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
-    },
-}
+# MAILERS = {
+#     'default': {
+#         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+#     },
+# }
 
 AUTH_USER_MODEL = 'accounts.User'   # our custom user (with roles)
 
@@ -166,3 +166,20 @@ CORS_ALLOWED_ORIGINS = [
 # Where generated report files are kept
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# ---------- Email ----------
+# Default: emails are printed in the backend terminal (no mail server needed).
+# To send real emails, set the values in your .env file (see Step 2).
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_TIMEOUT = 10
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='BudgetBuddy <noreply@budgetbuddy.local>')
+
+# The address of your React app, used for the buttons inside emails
+FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:5500')
+
+

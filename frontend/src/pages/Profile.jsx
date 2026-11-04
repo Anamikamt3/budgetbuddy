@@ -175,6 +175,63 @@ function PasswordForm({ toast }) {
   );
 }
 
+/* ---------- Email notification preferences ---------- */
+function EmailPreferences({ user, setUser, toast }) {
+  const enabled = Boolean(user.profile && user.profile.email_notifications);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+
+  async function toggle() {
+    setSaving(true);
+    try {
+      const { data } = await api.patch('/auth/profile/', { email_notifications: !enabled });
+      setUser(data);
+      toast(enabled ? 'Email notifications turned off' : 'Email notifications turned on');
+    } catch (err) {
+      toast(errorMessage(err), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function sendTest() {
+    setTesting(true);
+    try {
+      const { data } = await api.post('/finance/notifications/test-email/');
+      toast(data.detail);
+    } catch (err) {
+      toast(errorMessage(err), 'error');
+    } finally {
+      setTesting(false);
+    }
+  }
+
+  return (
+    <div>
+      <div className="pref-row">
+        <div>
+          <div className="pref-title">Email me about my money</div>
+          <p className="panel-note">
+            Budget alerts, goal milestones, savings reminders and monthly reports.
+          </p>
+        </div>
+        <button type="button" role="switch" aria-checked={enabled} aria-label="Email notifications"
+          className={`switch${enabled ? ' on' : ''}`} onClick={toggle} disabled={saving}>
+          <span />
+        </button>
+      </div>
+      <p className="panel-note" style={{ marginTop: 14 }}>
+        Emails are sent to <strong>{user.email || 'no email address yet'}</strong>.
+      </p>
+      <button type="button" className="button secondary" style={{ marginTop: 12 }}
+        onClick={sendTest} disabled={testing || !user.email}>
+        {testing ? 'Sending...' : 'Send a test email'}
+      </button>
+    </div>
+  );
+}
+
+
 /* ---------- The page ---------- */
 export default function Profile() {
   usePageTitle('Profile');
@@ -260,6 +317,11 @@ export default function Profile() {
           </dl>
           <p className="panel-note">Your username and role can only be changed by an administrator.</p>
         </div>
+      </section>
+      
+        <section className="panel wide">
+        <div className="panel-head"><h2>Notification preferences</h2></div>
+        <EmailPreferences user={user} setUser={setUser} toast={toast} />
       </section>
     </>
   );
