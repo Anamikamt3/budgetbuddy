@@ -133,7 +133,7 @@ Open the local URL displayed in the terminal to access the application.
 |---|---|
 | Milestone 1 | ✅ Completed |
 | Milestone 2 | ✅ Completed |
-| Milestone 3 | 🔄 On working |
+| Milestone 3 | ✅ Completed |
 
 ## 🎯 Project Objective
 
