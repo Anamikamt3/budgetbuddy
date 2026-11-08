@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import api, { errorMessage, fieldErrors } from '../api.js';
+import { useEffect, useRef ,useState } from 'react';
+import api, { errorMessage, fieldErrors, mediaUrl } from '../api.js';
+import PhotoViewer from '../components/PhotoViewer.jsx';
 import Field from '../components/Field.jsx';
 import PasswordField from '../components/PasswordField.jsx';
 import { useToast } from '../components/Toast.jsx';
@@ -7,6 +8,8 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { currentMonth, formatLongDate, formatMoney, initialsFor } from '../format.js';
 import useMoney from '../hooks/useMoney.js';
 import usePageTitle from '../hooks/usePageTitle.js';
+import Avatar from '../components/Avatar.jsx';
+import Icon from '../components/Icon.jsx';
 
 const CURRENCIES = [
   ['INR', 'Indian rupee'], ['USD', 'US dollar'], ['EUR', 'Euro'], ['GBP', 'British pound'],
@@ -239,6 +242,49 @@ export default function Profile() {
   const money = useMoney();
   const toast = useToast();
   const [summary, setSummary] = useState(null);
+  const fileRef = useRef(null);
+  const [viewing, setViewing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleFile(e) {
+    const file = e.target.files[0];
+    e.target.value = '';                    // lets you pick the same file again later
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      toast('Please choose a JPG, PNG or WebP image.', 'error');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast('The photo must be smaller than 2 MB.', 'error');
+      return;
+    }
+    const form = new FormData();
+    form.append('photo', file);
+    setUploading(true);
+    try {
+      const { data } = await api.post('/auth/profile/photo/', form);
+      setUser(data);                        // the sidebar and header update at once
+      toast('Profile photo updated');
+    } catch (err) {
+      toast(errorMessage(err), 'error');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function removePhoto() {
+    if (!window.confirm('Remove your profile photo?')) return;
+    setUploading(true);
+    try {
+      const { data } = await api.delete('/auth/profile/photo/');
+      setUser(data);
+      toast('Profile photo removed');
+    } catch (err) {
+      toast(errorMessage(err), 'error');
+    } finally {
+      setUploading(false);
+    }
+  }
 
   // This month's real income, to compare with the planned monthly income
   useEffect(() => {
@@ -260,13 +306,39 @@ export default function Profile() {
       </header>
 
       <section className="profile-hero" aria-label="Your account">
-        <div className="profile-avatar" aria-hidden="true">{initialsFor(profile.full_name, user.username)}</div>
+        <div className="profile-photo">
+          {profile.photo ? (
+            <button type="button" className="profile-avatar clickable"
+              onClick={() => setViewing(true)}
+              aria-label="View profile photo full size" title="Click to enlarge">
+              <Avatar user={user} />
+            </button>
+          ) : (
+            <div className="profile-avatar" aria-hidden="true"><Avatar user={user} /></div>
+          )}
+          <button type="button" className="photo-btn" aria-label="Change profile photo"
+            onClick={() => fileRef.current.click()} disabled={uploading}>
+            <Icon name="camera" />
+          </button>
+          <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp"
+            hidden onChange={handleFile} />
+        </div>
         <div className="profile-who">
           <h2>{displayName}</h2>
           <p>@{user.username} · {user.email || 'no email yet'}</p>
           <div className="profile-tags">
             <span className="tag-light">{ROLE_NAMES[user.role] || user.role}</span>
             {user.date_joined && <span className="tag-light">Member since {formatLongDate(user.date_joined)}</span>}
+          </div>
+          <div className="hero-links">
+            <button type="button" className="hero-link" onClick={() => fileRef.current.click()} disabled={uploading}>
+              {uploading ? 'Working...' : profile.photo ? 'Change photo' : 'Upload photo'}
+            </button>
+            {profile.photo && (
+              <button type="button" className="hero-link" onClick={removePhoto} disabled={uploading}>
+                Remove photo
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -323,6 +395,9 @@ export default function Profile() {
         <div className="panel-head"><h2>Notification preferences</h2></div>
         <EmailPreferences user={user} setUser={setUser} toast={toast} />
       </section>
+
+        <PhotoViewer open={viewing} onClose={() => setViewing(false)}
+        src={mediaUrl(profile.photo)} name={displayName} />
     </>
   );
 }

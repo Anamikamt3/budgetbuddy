@@ -48,6 +48,14 @@ const PATHS = {
       <path d="M4 21c0-4 3.5-6 8-6s8 2 8 6" />
     </>
   ),
+
+    camera: (
+    <>
+      <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </>
+  ),
+  
   up: <path d="M12 19V5M5 12l7-7 7 7" />,
   down: <path d="M12 5v14M5 12l7 7 7-7" />,
   alert: (

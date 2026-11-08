@@ -13,12 +13,15 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
-
 class ProfileSerializer(serializers.ModelSerializer):
+    photo = serializers.SerializerMethodField()
+
     class Meta:
         model = Profile
-        fields = ['full_name', 'monthly_income', 'currency' , 'email_notifications']
+        fields = ['full_name', 'monthly_income', 'currency', 'email_notifications' , 'photo']
 
+    def get_photo(self, obj):
+        return obj.photo.url if obj.photo else None
 
 class UserSerializer(serializers.ModelSerializer):
     profile = ProfileSerializer(read_only=True)
@@ -64,3 +67,14 @@ class ChangePasswordSerializer(serializers.Serializer):
             raise serializers.ValidationError(
                 {'new_password': 'Choose a password different from the current one.'})
         return attrs
+
+
+class PhotoSerializer(serializers.Serializer):
+    photo = serializers.ImageField()
+
+    def validate_photo(self, file):
+        if file.size > 2 * 1024 * 1024:
+            raise serializers.ValidationError('The photo must be smaller than 2 MB.')
+        if getattr(file, 'content_type', '') not in ('image/jpeg', 'image/png', 'image/webp'):
+            raise serializers.ValidationError('Use a JPG, PNG or WebP image.')
+        return file

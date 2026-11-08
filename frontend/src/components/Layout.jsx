@@ -3,6 +3,7 @@ import { NotificationProvider, useNotifications } from '../context/NotificationC
 import { useAuth } from '../context/AuthContext.jsx';
 import { initialsFor } from '../format.js';
 import Icon, { BrandMark } from './Icon.jsx';
+import Avatar from './Avatar.jsx';
 
 const NAV = [
   { to: '/', label: 'Overview', icon: 'overview', end: true },
@@ -46,7 +47,7 @@ function Shell() {
 
         <div className="side-user">
           <Link to="/profile" className="avatar" aria-label="Your profile" title="Your profile">
-            {initialsFor(profile.full_name, user.username)}
+            <Avatar user={user} />
           </Link>
           <div className="who">
             <div className="name">{displayName}</div>

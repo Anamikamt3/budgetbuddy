@@ -1,6 +1,16 @@
 import axios from 'axios';
 
 export const API_URL = 'http://127.0.0.1:8000/api';
+
+// The address of the Django server without /api (photos are served from here)
+export const API_ORIGIN = API_URL.replace(/\/api$/, '');
+
+// Turns "/media/avatars/1_ab.jpg" into a full address the browser can load
+export function mediaUrl(path) {
+  if (!path) return null;
+  return path.startsWith('http') ? path : `${API_ORIGIN}${path}`;
+}
+
 export const NETWORK_MESSAGE =
   "Can't reach the server. Make sure the backend is running on port 8000.";
 
