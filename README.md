@@ -10,6 +10,7 @@ BudgetBuddy is a web-based budget management application designed to help users 
 - **Transaction Management** – Track income and expenses.
 - **Transaction History** – View previous financial transactions.
 - **Responsive UI** – Clean and user-friendly interface.
+- **Premium user Features** – Added premuium user features.
 
 ## 🛠️ Technologies Used
 
