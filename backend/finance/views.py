@@ -14,6 +14,10 @@ from .serializers import (
 )
 from .utils import month_bounds
 
+from rest_framework.exceptions import PermissionDenied
+
+from .premium import limits_for
+
 
 class CategoryListCreateView(generics.ListCreateAPIView):
     """List default + own categories. Users can add their own."""
@@ -25,6 +29,11 @@ class CategoryListCreateView(generics.ListCreateAPIView):
         ).order_by('name')
 
     def perform_create(self, serializer):
+        limit = limits_for(self.request.user)['custom_categories']
+        if limit is not None and Category.objects.filter(user=self.request.user).count() >= limit:
+            raise PermissionDenied(
+                f'The Free plan allows {limit} custom categories. '
+                'Upgrade to Premium for unlimited categories.')
         serializer.save(user=self.request.user)
 
 
@@ -111,6 +120,12 @@ class SavingsGoalViewSet(OwnedViewSet):
     serializer_class = SavingsGoalSerializer
 
     def perform_create(self, serializer):
+        limit = limits_for(self.request.user)['goals']
+        active = SavingsGoal.objects.filter(user=self.request.user, is_completed=False).count()
+        if limit is not None and active >= limit:
+            raise PermissionDenied(
+                f'The Free plan allows {limit} active savings goals. '
+                'Upgrade to Premium for unlimited goals.')
         goal = serializer.save(user=self.request.user)
         sync_goal(goal)
 

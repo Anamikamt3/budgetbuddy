@@ -15,6 +15,7 @@ const NAV = [
   { to: '/goals', label: 'Goals', icon: 'goals' },
   { to: '/reports', label: 'Reports', icon: 'reports' },
   { to: '/notifications', label: 'Notifications', icon: 'bell', badge: true },
+  { to: '/premium', label: 'Premium', icon: 'star' },
   { to: '/profile', label: 'Profile', icon: 'user' },
 ];
 

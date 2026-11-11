@@ -8,6 +8,8 @@ from rest_framework.views import APIView
 from .models import Budget, Expense, Income
 from .utils import month_bounds
 
+from .premium import limits_for
+
 WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 
@@ -37,8 +39,8 @@ class AnalyticsView(APIView):
             span = int(request.query_params.get('months', 6))
         except ValueError:
             span = 6
-        span = max(2, min(span, 24))
-
+        span = max(2, min(span, limits_for(user)['trend_months']))
+        
         incomes = Income.objects.filter(user=user)
         expenses = Expense.objects.filter(user=user)
 

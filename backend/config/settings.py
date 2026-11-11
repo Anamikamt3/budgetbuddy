@@ -182,4 +182,6 @@ DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='BudgetBuddy <noreply@
 # The address of your React app, used for the buttons inside emails
 FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:5500')
 
-
+# Premium plan: lets a user switch to Premium with one click (for demos only).
+# In a real product, a payment provider would do this. Off by default.
+PREMIUM_DEMO_UPGRADE = config('PREMIUM_DEMO_UPGRADE', default=False, cast=bool)

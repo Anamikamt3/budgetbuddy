@@ -12,6 +12,7 @@ import Goals from './pages/Goals.jsx';
 import Reports from './pages/Reports.jsx';
 import Notifications from './pages/Notifications.jsx';
 import Profile from './pages/Profile.jsx';
+import Premium from './pages/Premium.jsx';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
         <Route path="goals" element={<Goals />} />
         <Route path="reports" element={<Reports />} />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="premium" element={<Premium />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 

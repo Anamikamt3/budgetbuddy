@@ -6,6 +6,8 @@ import { downloadFile } from '../download.js';
 import { currentMonth, monthLabel } from '../format.js';
 import useMoney from '../hooks/useMoney.js';
 import usePageTitle from '../hooks/usePageTitle.js';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const REPORTS = [
   {
@@ -16,6 +18,7 @@ const REPORTS = [
   },
   {
     file: 'xlsx',
+    premium: true,
     title: 'Excel workbook',
     description: 'Every number in a spreadsheet, ready for your own analysis.',
     includes: ['Summary sheet', 'Expenses and Income sheets with totals', 'Category and Budget sheets', 'Works in Excel and Google Sheets'],
@@ -26,6 +29,7 @@ export default function Reports() {
   usePageTitle('Reports');
   const money = useMoney();
   const toast = useToast();
+  const { isPremium } = useAuth();
 
   const [month, setMonth] = useState(currentMonth());
   const [summary, setSummary] = useState(null);
@@ -103,22 +107,34 @@ export default function Reports() {
       )}
 
       <section className="grid-2">
-        {REPORTS.map((report) => (
-          <div className="panel report-card" key={report.file}>
-            <div className="report-icon"><Icon name="reports" /></div>
-            <h2>{report.title}</h2>
-            <p className="panel-note">{report.description}</p>
-            <ul className="report-list">
-              {report.includes.map((line) => (
-                <li key={line}><Icon name="check" />{line}</li>
-              ))}
-            </ul>
-            <button type="button" className="button" onClick={() => handleDownload(report)} disabled={busy !== ''}>
-              <Icon name="download" />
-              {busy === report.file ? 'Preparing...' : `Download ${report.file.toUpperCase()}`}
-            </button>
-          </div>
-        ))}
+        {REPORTS.map((report) => {
+          const locked = report.premium && !isPremium;
+          return (
+            <div className="panel report-card" key={report.file}>
+              <div className="report-icon"><Icon name="reports" /></div>
+              <h2>
+                {report.title}
+                {report.premium && <span className="premium-pill">Premium</span>}
+              </h2>
+              <p className="panel-note">{report.description}</p>
+              <ul className="report-list">
+                {report.includes.map((line) => (
+                  <li key={line}><Icon name="check" />{line}</li>
+                ))}
+              </ul>
+              {locked ? (
+                <Link className="button secondary" to="/premium">
+                  <Icon name="lock" />Upgrade to unlock
+                </Link>
+              ) : (
+                <button type="button" className="button" onClick={() => handleDownload(report)} disabled={busy !== ''}>
+                  <Icon name="download" />
+                  {busy === report.file ? 'Preparing...' : `Download ${report.file.toUpperCase()}`}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </section>
     </>
   );

@@ -10,6 +10,7 @@ import { useToast } from '../components/Toast.jsx';
 import { barClass, currentMonth, formatDate, monthLabel, shortMonth } from '../format.js';
 import useMoney from '../hooks/useMoney.js';
 import usePageTitle from '../hooks/usePageTitle.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 // Chart colours (same palette as the rest of the app)
 const COLORS = ['#2d5bff', '#f2b138', '#16866a', '#e5566d', '#8b6cf0', '#5b6578'];
@@ -24,9 +25,10 @@ export default function Analytics() {
   usePageTitle('Analytics');
   const money = useMoney();
   const toast = useToast();
+  const { isPremium } = useAuth();
 
   const [month, setMonth] = useState(currentMonth());
-  const [span, setSpan] = useState(6);          // how many months the trend shows
+  const [span, setSpan] = useState(isPremium ? 6 : 3);          // how many months the trend shows
   const [data, setData] = useState(null);
 
   useEffect(() => {
@@ -68,8 +70,8 @@ export default function Analytics() {
             <label className="sr-only" htmlFor="span">Trend length</label>
             <select id="span" className="range-select" value={span} onChange={(e) => setSpan(Number(e.target.value))}>
               <option value={3}>Last 3 months</option>
-              <option value={6}>Last 6 months</option>
-              <option value={12}>Last 12 months</option>
+              <option value={6} disabled={!isPremium}>Last 6 months{isPremium ? '' : ' (Premium)'}</option>
+              <option value={12} disabled={!isPremium}>Last 12 months{isPremium ? '' : ' (Premium)'}</option>
             </select>
           </div>
         </div>

@@ -8,6 +8,8 @@ from .models import Budget, Expense, Income, Report
 from .report_builders import build_pdf, build_xlsx
 from .utils import month_bounds
 
+from .premium import require_premium
+
 
 def collect_report_data(user, start, end):
     """Gather everything the report needs into one plain dictionary."""
@@ -82,7 +84,8 @@ class MonthlyReportView(APIView):
 
     def get(self, request):
         start, end = month_bounds(request.query_params.get('month'))
-        kind = request.query_params.get('file', 'pdf')
+        if kind == 'xlsx':
+            require_premium(request.user, 'Excel reports')
         if kind not in ('pdf', 'xlsx'):
             return Response({'file': ['Use file=pdf or file=xlsx.']}, status=400)
 

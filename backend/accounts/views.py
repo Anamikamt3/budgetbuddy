@@ -12,6 +12,7 @@ from .serializers import (
     ChangePasswordSerializer, ProfileUpdateSerializer, RegisterSerializer, UserSerializer, PhotoSerializer
 )
 
+from django.conf import settings
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -84,4 +85,33 @@ class ProfilePhotoView(APIView):
             profile.photo.delete(save=True)            # deletes the file and clears the field
 
         user = User.objects.get(pk=request.user.pk)
+        return Response(UserSerializer(user).data)
+
+class UpgradeView(APIView):
+    """DEMO upgrade: switches a Student to Premium.
+    In a real product this would happen after a payment is confirmed (Stripe, Razorpay...).
+    It only works while PREMIUM_DEMO_UPGRADE=True, so it is off by default."""
+
+    def post(self, request):
+        if not getattr(settings, 'PREMIUM_DEMO_UPGRADE', False):
+            return Response({'detail': 'Upgrades are handled by an administrator.'}, status=403)
+        user = request.user
+        if user.role == User.Role.ADMIN:
+            return Response({'detail': 'Administrators already have every feature.'}, status=400)
+        user.role = User.Role.PREMIUM
+        user.save(update_fields=['role'])
+        return Response(UserSerializer(user).data)
+
+
+class DowngradeView(APIView):
+    """DEMO: switches a Premium user back to Student (handy for testing)."""
+
+    def post(self, request):
+        if not getattr(settings, 'PREMIUM_DEMO_UPGRADE', False):
+            return Response({'detail': 'Plan changes are handled by an administrator.'}, status=403)
+        user = request.user
+        if user.role == User.Role.ADMIN:
+            return Response({'detail': 'Administrator accounts cannot be downgraded here.'}, status=400)
+        user.role = User.Role.STUDENT
+        user.save(update_fields=['role'])
         return Response(UserSerializer(user).data)
