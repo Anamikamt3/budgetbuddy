@@ -5,12 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Budget, Expense, Income, Report
+from .premium import require_premium
 from .report_builders import build_pdf, build_xlsx
 from .utils import month_bounds
-
-from .premium import require_premium
-
-
 def collect_report_data(user, start, end):
     """Gather everything the report needs into one plain dictionary."""
     expenses = Expense.objects.filter(user=user, date__gte=start, date__lt=end)
@@ -78,17 +75,23 @@ def collect_report_data(user, start, end):
 class MonthlyReportView(APIView):
     """Download a monthly report.
     ?month=2026-10     the month (default: this month)
-    ?file=pdf | xlsx   the file type (default: pdf)
+    ?file=pdf | xlsx   the file type (default: pdf). Excel is a Premium feature.
 
     Every download is also saved in the Report table (with a copy of the file)."""
 
     def get(self, request):
         start, end = month_bounds(request.query_params.get('month'))
-        if kind == 'xlsx':
-            require_premium(request.user, 'Excel reports')
+
+        # 1. Work out which file type was asked for (this line must come FIRST)
+        kind = request.query_params.get('file', 'pdf')
         if kind not in ('pdf', 'xlsx'):
             return Response({'file': ['Use file=pdf or file=xlsx.']}, status=400)
 
+        # 2. Excel is only for Premium users
+        if kind == 'xlsx':
+            require_premium(request.user, 'Excel reports')
+
+        # 3. Build the file
         data = collect_report_data(request.user, start, end)
         stem = f"BudgetBuddy_Report_{start.strftime('%Y-%m')}"
 
@@ -99,7 +102,7 @@ class MonthlyReportView(APIView):
             content = build_pdf(data)
             content_type = 'application/pdf'
 
-        # Keep a record: one row in finance_report plus a copy of the file
+        # 4. Keep a record: one row in finance_report plus a copy of the file
         report = Report(user=request.user, month=start)
         report.file.save(f'{stem}.{kind}', ContentFile(content), save=True)
 
