@@ -1,10 +1,9 @@
 # 💰 BudgetBuddy – AI-Powered Budget Management Tool
 
-[![Tests](https://github.com/Anamikamt3/BudgetBuddy-AI-Tool/actions/workflows/tests.yml/badge.svg)](https://github.com/Anamikamt3/BudgetBuddy-AI-Tool/actions/workflows/tests.yml)
-
 BudgetBuddy is a full-stack budget management application designed to help students manage their personal finances efficiently. It provides features for tracking income and expenses, managing budgets and savings goals, analysing spending, and receiving alerts through an intuitive, responsive interface.
 
 🌐 **Live App:** https://budgetbuddy-omega-blond.vercel.app 
+
 ⚙️ **API:**  https://budgetbuddy-api-mjtj.onrender.com
 
 > **Note:** The API runs on a free hosting plan, so the first request after a quiet period can take about a minute.
