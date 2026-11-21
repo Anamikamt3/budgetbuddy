@@ -156,9 +156,17 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 EMAIL_TIMEOUT = 10
-EMAIL_MODE = 'console' if 'console' in EMAIL_BACKEND else 'smtp'
+EMAIL_MODE = ('console' if 'console' in EMAIL_BACKEND
+              else 'api' if 'mail_backend' in EMAIL_BACKEND else 'smtp')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='BudgetBuddy <noreply@budgetbuddy.local>')
-
+# Real emails over HTTPS (works on Render's free plan, which blocks SMTP).
+# Switch it on by setting EMAIL_BACKEND=finance.mail_backend.HttpApiEmailBackend
+EMAIL_API_PROVIDER = config('EMAIL_API_PROVIDER', default='emailjs')   # 'emailjs' or 'brevo'
+BREVO_API_KEY = config('BREVO_API_KEY', default='')
+EMAILJS_SERVICE_ID = config('EMAILJS_SERVICE_ID', default='')
+EMAILJS_TEMPLATE_ID = config('EMAILJS_TEMPLATE_ID', default='')
+EMAILJS_PUBLIC_KEY = config('EMAILJS_PUBLIC_KEY', default='')
+EMAILJS_PRIVATE_KEY = config('EMAILJS_PRIVATE_KEY', default='')
 # The address of the React app, used for the buttons inside emails
 FRONTEND_URL = config('FRONTEND_URL', default='http://127.0.0.1:5500')
 

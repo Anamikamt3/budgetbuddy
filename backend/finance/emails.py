@@ -60,23 +60,36 @@ def build_email(kind, message, name, base_url):
     return subject, text, html
 
 
-def _deliver(subject, text, html, to):
+def email_fields(kind, message, name, base_url):
+    """The same content as separate pieces. EmailJS fills its template with these."""
+    info = KINDS.get(kind, KINDS['budget_alert'])
+    return {
+        'name': name or 'there',
+        'label': info['label'],
+        'headline': message,
+        'link': base_url.rstrip('/') + info['path'],
+        'button_text': info['button'],
+    }
+
+
+def _deliver(subject, text, html, to, fields=None):
     mail = EmailMultiAlternatives(subject, text, settings.DEFAULT_FROM_EMAIL, [to])
     mail.attach_alternative(html, 'text/html')
+    mail.extra_params = fields or {}
     mail.send()
 
 
-def _send_safely(subject, text, html, to):
+def _send_safely(subject, text, html, to, fields):
     """Used in the background. A failed email must never break the app."""
     try:
-        _deliver(subject, text, html, to)
+        _deliver(subject, text, html, to, fields)
     except Exception:
         logger.exception('Could not send the notification email to %s', to)
 
 
 def send_notification_email(notification):
     """Email a notification to its owner (if they have an email and want emails).
-    It is sent in a background thread so the page does not wait for the mail server."""
+    It is sent in a background thread so the page does not wait for the mail service."""
     user = notification.user
     profile = getattr(user, 'profile', None)
     if not user.email or (profile is not None and not profile.email_notifications):
@@ -84,15 +97,18 @@ def send_notification_email(notification):
     name = profile.full_name if profile is not None and profile.full_name else user.username
     subject, text, html = build_email(
         notification.type, notification.message, name, settings.FRONTEND_URL)
-    threading.Thread(target=_send_safely, args=(subject, text, html, user.email),
+    fields = email_fields(notification.type, notification.message, name, settings.FRONTEND_URL)
+    threading.Thread(target=_send_safely, args=(subject, text, html, user.email, fields),
                      daemon=True).start()
 
 
 def send_test_email(user):
-    """Sends right away (no background thread) so any problem is reported to the user."""
+    """Sends right away (no background thread) so any problem is reported to the user.
+    Returns 'console', 'smtp' or 'api' so the page can say what really happened."""
     profile = getattr(user, 'profile', None)
     name = profile.full_name if profile is not None and profile.full_name else user.username
-    subject, text, html = build_email(
-        'test', 'This is a test email. Your BudgetBuddy email notifications are working.',
-        name, settings.FRONTEND_URL)
-    _deliver(subject, text, html, user.email)
+    message = 'This is a test email. Your BudgetBuddy email notifications are working.'
+    subject, text, html = build_email('test', message, name, settings.FRONTEND_URL)
+    fields = email_fields('test', message, name, settings.FRONTEND_URL)
+    _deliver(subject, text, html, user.email, fields)
+    return settings.EMAIL_MODE

@@ -19,3 +19,8 @@ REST_FRAMEWORK = {
     **REST_FRAMEWORK,  # noqa: F405
     'DEFAULT_THROTTLE_RATES': {'anon': '10000/minute'},
 }
+
+# The test client talks plain http, so do not force https while testing
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
